@@ -1,0 +1,21 @@
+name: Bad Ci/Cd
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - echo "Билд приложения"
+    - npm install
+    - npm run build
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Деплой приложения"
+    - rm -rf /path/to/deployment
+    - cp -r dist/* /path/to/deployment
+  environment:
+    PATH: /usr/local/bin:$PATH
