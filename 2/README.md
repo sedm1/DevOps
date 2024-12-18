@@ -8,10 +8,12 @@
 ## Сборка плохого Docker файла
 
 Его сборка прлшла успешно : 
-Картинка bad-1.png
+
+![](https://github.com/sedm1/DevOps/blob/main/2/media/bad-1.png)
 
 Запустим контейнер после сборки образа:
-Картинка bad-2.png
+
+![](https://github.com/sedm1/DevOps/blob/main/2/media/bad-2.png)
 
 ## В хорошем Dockerfile исправили эти проблемы следующим образом:
 
@@ -22,10 +24,12 @@
 ## Сборка хорошего Docker файла
 
 Его сборка прлшла успешно : 
-Картинка good-1.png
+
+![](https://github.com/sedm1/DevOps/blob/main/2/media/good-1.png)
 
 Запустим контейнер после сборки образа:
-Картинка good-2.png
+
+![](https://github.com/sedm1/DevOps/blob/main/2/media/good-2.png)
 
 ### Две распространенные ошибки при работе с контейнерами:
 
