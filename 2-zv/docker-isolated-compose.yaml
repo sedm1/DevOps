@@ -1,0 +1,15 @@
+services:
+  good-container:
+    build:
+      dockerfile: dockerfileGood
+    networks:
+      - good-net
+  bad-container:
+    build:
+      dockerfile: dockerfileBad
+    networks:
+      - bad-net
+
+networks:
+  bad-net:
+  good-net:

@@ -1,0 +1,11 @@
+services:
+  good-container:
+    build:
+      dockerfile: dockerfileGood
+    environment:
+      - SUPERSECRET=password
+    ports:
+      - "8000-8080:8000-8080"
+  bad-container:
+    build:
+      dockerfile: dockerfileBad
