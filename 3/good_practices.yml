@@ -1,26 +1,62 @@
-name: Good Ci/Cd
+name: Improved CI/CD
 
-stages:
-  - build
-  - deploy
+on:
+  push:
+    branches:
+      - main
 
-build:
-  stage: build
-  script:
-    - echo "Билд приложения"
-    - npm install --cache /path/to/cache
-    - npm run build
-  locks:
-    max-run: 1
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    outputs:
+      build_output: ${{ steps.build.outputs.build_folder }}  # Output для передачи данных между job'ами
 
-deploy:
-  stage: deploy
-  script:
-    - echo "Деплой прилоежния"
-    - rm -rf /path/to/deployment
-    - cp -r dist/* /path/to/deployment
-  environment:
-    DEPLOYMENT_PATH: /path/to/deployment
-  artifacts:
-    paths:
-      - dist/*
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Application
+        id: build
+        run: |
+          npm run build
+          echo "::set-output name=build_folder::dist"  # Сохранение выходной директории
+        continue-on-error: false  # Остановка в случае ошибки
+
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: build
+    if: success()  # Проверка на успешный результат предыдущего job
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy Application
+        run: |
+          echo "Deploying application"
+          DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}  # Путь развертывания из безопасной переменной
+          if [ -d "$DEPLOY_PATH" ]; then
+            rm -rf $DEPLOY_PATH
+          fi
+          mkdir -p $DEPLOY_PATH
+          cp -r dist/* $DEPLOY_PATH
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}  # Используем безопасную переменную окружения
