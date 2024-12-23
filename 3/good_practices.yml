@@ -9,9 +9,7 @@ jobs:
   build:
     name: Build Application
     runs-on: ubuntu-latest
-    outputs:
-      build_output: ${{ steps.build.outputs.build_folder }}  # Output для передачи данных между job'ами
-
+    
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -33,30 +31,37 @@ jobs:
         run: npm install
 
       - name: Build Application
-        id: build
-        run: |
-          npm run build
-          echo "::set-output name=build_folder::dist"  # Сохранение выходной директории
-        continue-on-error: false  # Остановка в случае ошибки
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_artifacts
+          path: dist
 
   deploy:
     name: Deploy Application
     runs-on: ubuntu-latest
     needs: build
-    if: success()  # Проверка на успешный результат предыдущего job
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build_artifacts
+          path: dist
+
       - name: Deploy Application
         run: |
           echo "Deploying application"
-          DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}  # Путь развертывания из безопасной переменной
+          DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}
           if [ -d "$DEPLOY_PATH" ]; then
-            rm -rf $DEPLOY_PATH
+            rm -rf "$DEPLOY_PATH"
           fi
-          mkdir -p $DEPLOY_PATH
-          cp -r dist/* $DEPLOY_PATH
+          mkdir -p "$DEPLOY_PATH"
+          cp -r dist/* "$DEPLOY_PATH"
         env:
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}  # Используем безопасную переменную окружения
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
